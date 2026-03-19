@@ -1,0 +1,339 @@
+================================================================
+     ROYAL CHESS — LUỒNG NGHIỆP VỤ TRẢI NGHIỆM
+================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+I. ĐĂNG NHẬP HỆ THỐNG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Người dùng truy cập ứng dụng → Trang đăng nhập hiện ra
+2. Chọn "Login" hoặc "Register":
+   - Login: Nhập Username + Mật khẩu → Bấm "> LOGIN"
+   - Register: Nhập Email + Username + Mật khẩu → Bấm "> CREATE"
+3. Hệ thống xác thực (JWT):
+   - Nếu đúng → Chuyển vào giao diện theo vai trò
+   - Nếu sai  → Hiện thông báo lỗi đỏ, nhập lại
+
+Vai trò Player → Thấy: Home, PVP Battle, VS Computer, My History
+Vai trò Admin  → Thấy: Dashboard, Manage Users, All Games
+
+Lưu ý: Admin không chơi cờ. Player không thấy trang admin.
+        Chỉ có duy nhất 1 tài khoản Admin trong hệ thống.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+II. VAI TRÒ PLAYER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+──────────────────────────────────────────────────────────────
+A. TRANG HOME — TỔNG QUAN NGƯỜI CHƠI
+──────────────────────────────────────────────────────────────
+
+  • Hiện logo và tên game "ROYAL CHESS"
+  • 2 card chọn chế độ chơi:
+      PVP BATTLE  → Chơi với người (cùng 1 máy)
+      VS COMPUTER → Chơi với AI
+  • Hiện thống kê cá nhân: Số ván đã chơi, Số trận thắng, Rating hiện tại
+  • Bấm vào card → Chuyển sang trang chơi tương ứng
+
+──────────────────────────────────────────────────────────────
+B. TRANG PVP BATTLE — NGƯỜI ĐẤU VỚI NGƯỜI
+──────────────────────────────────────────────────────────────
+
+Bước 1 — Vào trang
+  • Bàn cờ hiện ra với đầy đủ 32 quân ở vị trí ban đầu
+  • Nếu trước đó đang dở ván → Khôi phục lại trạng thái, tiếp tục chơi
+  • Thanh trạng thái hiện "WHITE TO MOVE"
+
+Bước 2 — Chơi cờ
+  • Bấm vào quân mình → Các ô có thể đi hiện chấm xanh (nước đi hợp lệ)
+  • Ô có quân đối phương có thể ăn → Viền đỏ
+  • Bấm vào ô hợp lệ → Quân di chuyển, đổi lượt
+  • Nước đi cuối cùng được highlight tím trên bàn cờ
+  • Panel bên phải hiện danh sách nước đi (algebraic notation)
+  • Panel cũng hiện quân đã bị bắt của mỗi bên
+
+Bước 3 — Các luật đặc biệt (tự động)
+  • Nhập thành (Castling): Vua + Xe di chuyển đồng thời
+  • Bắt tốt qua đường (En passant): Tự động nhận diện
+  • Phong cấp (Promotion): Tốt đến hàng cuối → Modal hiện ra
+      Chọn: Hậu / Xe / Tượng / Mã → Quân được thay thế
+
+Bước 4 — Kết thúc ván
+  • Chiếu hết (Checkmate) → Ô vua nhấp nháy đỏ → Modal "WHITE WINS!" hoặc "BLACK WINS!"
+  • Hết nước (Stalemate) → Modal "DRAW"
+  • Hòa do lặp 3 lần hoặc luật 50 nước → Modal "DRAW"
+  • Bấm "Resign" → Đầu hàng, đối phương thắng
+  • Modal kết quả hiện 2 nút: "PLAY AGAIN" (ván mới) / "HOME" (về trang chủ)
+
+Bước 5 — Lưu kết quả
+  • Khi ván kết thúc → Hệ thống tự động gửi kết quả lên server
+  • Cập nhật: games_played, wins/losses/draws, rating (+15/-15)
+  • Ván được lưu vào lịch sử với đầy đủ nước đi
+
+Các nút điều khiển:
+  • "New" → Bắt đầu ván mới (xóa ván hiện tại)
+  • "Resign" → Đầu hàng
+  • Nút mũi tên ← → Quay về Home
+
+──────────────────────────────────────────────────────────────
+C. TRANG VS COMPUTER — NGƯỜI ĐẤU VỚI AI
+──────────────────────────────────────────────────────────────
+
+Bước 1 — Chọn cấu hình
+  • Modal hiện ra khi vào trang (nếu chưa có ván đang dở):
+      Chọn màu: [W] Trắng hoặc [B] Đen
+      Chọn độ khó:
+        [E] EASY   — AI suy nghĩ nông, thỉnh thoảng đi ngẫu nhiên
+        [M] MEDIUM — AI suy nghĩ 3 bước (depth 3)
+        [H] HARD   — AI suy nghĩ 4 bước (depth 4), có bảng đánh giá vị trí
+  • Bấm vào mức độ → Ván bắt đầu
+
+Bước 2 — Chơi cờ
+  • Giống PVP nhưng chỉ điều khiển được quân màu mình chọn
+  • Khi đến lượt AI → Dòng "THINKING..." hiện bên dưới bàn cờ
+  • Bàn cờ bị khóa (không bấm được) trong lúc AI suy nghĩ
+  • AI đi xong → Bàn cờ mở khóa, đến lượt người chơi
+
+Bước 3 — Nếu chuyển sang trang khác
+  • Trạng thái ván cờ được lưu trong bộ nhớ
+  • Quay lại trang VS Computer → Ván cũ vẫn còn, tiếp tục chơi
+  • Bấm "New" → Mở lại modal chọn cấu hình, bắt đầu ván mới
+
+Bước 4 — Kết thúc ván
+  • Modal: "YOU WIN!" / "AI WINS!" / "DRAW"
+  • Kết quả tự động lưu lên server kèm difficulty và player_color
+  • Rating thay đổi: +15 nếu thắng, -15 nếu thua
+
+──────────────────────────────────────────────────────────────
+D. TRANG MY HISTORY — LỊCH SỬ CÁ NHÂN
+──────────────────────────────────────────────────────────────
+
+  • Hiện bảng toàn bộ ván đã chơi của người dùng hiện tại
+  • Cột hiển thị:
+      #       → Số thứ tự
+      Mode    → PVP hoặc AI (tag màu)
+      Result  → WIN (xanh) / LOSS (đỏ) / DRAW (vàng)
+      Moves   → Tổng số nước đi
+      Date    → Ngày chơi
+  • Dữ liệu được lấy từ API, chỉ hiện ván của chính user đang đăng nhập
+  • Nếu chưa có ván nào → Hiện "No games yet. Go play!"
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+III. VAI TRÒ ADMIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Giao diện Admin sử dụng theme sang trọng riêng (font Inter, nền tối xanh navy,
+màu accent tím indigo) — khác hoàn toàn với giao diện pixel của Player.
+
+──────────────────────────────────────────────────────────────
+A. DASHBOARD — TỔNG QUAN HỆ THỐNG
+──────────────────────────────────────────────────────────────
+
+▸ 4 Card thống kê (dữ liệu thật từ database)
+  • Total Players  — Số tài khoản player (không tính admin)
+      Badge: % thay đổi so với tuần trước
+  • Games Played   — Tổng số ván đã chơi (PvP + AI)
+      Badge: % thay đổi so với tuần trước
+  • Active Today   — Số player đăng nhập trong ngày
+      Badge: % thay đổi so với hôm qua
+  • Avg Rating     — Rating trung bình của tất cả player
+
+▸ Biểu đồ Weekly Game Activity (Bar chart)
+  • Hiện số ván chơi mỗi ngày trong tuần vừa qua
+  • 2 lớp: Tổng số ván (xanh indigo) + Số ván AI (tím nhạt overlay)
+  • Hover vào cột → Hiện tooltip số liệu cụ thể
+  • Dữ liệu query từ bảng games, GROUP BY DATE
+
+▸ Biểu đồ Game Mode Distribution (Donut chart)
+  • Phân bổ: PvP / AI Easy / AI Medium / AI Hard
+  • Mỗi phần có màu riêng + legend hiện % và số lượng
+  • Dữ liệu query từ bảng games, GROUP BY mode + difficulty
+
+▸ Biểu đồ Rating Distribution (Horizontal bar chart)
+  • Phân bổ player theo khoảng rating: 800-1000, 1000-1200, 1200-1400, 1400-1600, 1600+
+  • Mỗi thanh hiện số lượng player và % trên tổng
+  • Dữ liệu query bằng CASE WHEN trên bảng users
+
+▸ Activity Heatmap (28 ngày)
+  • Lưới 7×4, mỗi ô là 1 ngày, độ đậm thể hiện số ván chơi
+  • Hover vào ô → Hiện ngày + số ván cụ thể
+  • Scale: 0 ván (nhạt nhất) → 15+ ván (đậm nhất)
+  • Dữ liệu query 1 câu GROUP BY DATE(created_at)
+
+▸ Bảng Recent Games (10 ván gần nhất)
+  • Cột: Player, Mode, Result, Moves, Date
+  • Mode hiện tag màu (PvP = cyan, AI = tím)
+  • Result hiện tag màu (Win = xanh, Loss = đỏ, Draw = vàng)
+  • Dữ liệu từ bảng games JOIN users, ORDER BY created_at DESC
+
+──────────────────────────────────────────────────────────────
+B. MANAGE USERS — QUẢN LÝ NGƯỜI CHƠI
+──────────────────────────────────────────────────────────────
+
+▸ Danh sách người dùng
+  • Bảng hiện toàn bộ user trong hệ thống
+  • Cột: User (avatar + tên + email), Role, Games, Win Rate, Rating, Joined, Actions
+  • Win Rate hiện màu: xanh (≥55%), vàng (40-55%), đỏ (<40%)
+  • Rating có thanh progress bar trực quan
+  • Ô tìm kiếm: lọc theo username hoặc email (real-time)
+  • Hiện tổng số user ở góc trái
+
+▸ Thêm người chơi mới
+  • Bấm "+ Add User" → Modal hiện ra
+  • Nhập: Username, Email, Password (tối thiểu 6 ký tự), Initial Rating
+  • Bấm "Create Player" → Tạo tài khoản role=player
+  • Player mới có thể đăng nhập ngay
+
+▸ Sửa thông tin người chơi
+  • Bấm "Edit" trên dòng user → Modal hiện ra
+  • Sửa được: Username, Email, Rating
+  • Đổi mật khẩu: Nhập mật khẩu mới (để trống = giữ nguyên)
+  • Bấm "Save Changes" → Cập nhật
+
+▸ Xóa người chơi
+  • Bấm "Delete" → Modal xác nhận hiện ra
+  • Cảnh báo: "This will also remove all their game history"
+  • Bấm "Delete Player" → Xóa user + toàn bộ game liên quan
+  • Không thể xóa tài khoản Admin
+
+▸ Quy tắc bảo vệ
+  • Dòng Admin không hiện nút Edit/Delete
+  • API từ chối sửa/xóa account có role=admin
+  • Toast thông báo kết quả (xanh = thành công, đỏ = lỗi)
+
+──────────────────────────────────────────────────────────────
+C. ALL GAMES — LỊCH SỬ TOÀN BỘ VÁN CỜ
+──────────────────────────────────────────────────────────────
+
+  • Hiện bảng toàn bộ ván đã chơi trên hệ thống (mọi user)
+  • Cột: Player (tên user), Mode, Result, Moves, Date
+  • Bộ lọc tab: All / PVP / AI
+  • Bấm tab → Lọc ngay, hiện số lượng tương ứng
+  • Nếu user đã bị xóa → Cột Player hiện "deleted"
+  • Nếu là AI game → Hiện thêm difficulty bên cạnh tag mode
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IV. LUỒNG KỸ THUẬT — AUTHENTICATION & AUTHORIZATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Đăng nhập
+  1. Client gửi POST /api/v1/auth/login { username, password }
+  2. Server tìm user theo username (case-insensitive)
+  3. Kiểm tra password bằng BCrypt
+  4. Nếu đúng → Tạo JWT token (chứa user_id + role, hạn 7 ngày)
+  5. Trả về { token, user } → Client lưu token vào localStorage
+
+▸ Đăng ký
+  1. Client gửi POST /api/v1/auth/register { email, username, password }
+  2. Server tạo user mới với role=player, rating=1200
+  3. Trả về JWT token ngay → Đăng nhập luôn không cần login lại
+
+▸ Xác thực mỗi request
+  1. Client gắn header: Authorization: Bearer <token>
+  2. Server decode JWT → Lấy user_id → Tìm user trong DB
+  3. Nếu token hết hạn hoặc sai → Trả về 401 Unauthorized
+
+▸ Phân quyền
+  • authenticate_user!  → Chặn nếu không có token hợp lệ
+  • authenticate_admin! → Chặn thêm nếu role ≠ admin
+  • Frontend: UserGuard component (Solid.js createEffect + Show)
+      Kiểm tra token + role → Redirect nếu sai vai trò
+      Admin tự động redirect về /admin, Player về /
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+V. LUỒNG KỸ THUẬT — CHESS ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Frontend Engine (JavaScript — chạy trên trình duyệt)
+  • Sinh nước đi hợp lệ cho từng loại quân
+  • Kiểm tra chiếu, chiếu hết, hết nước, hòa
+  • Xử lý luật đặc biệt: nhập thành, bắt qua đường, phong cấp
+  • AI: Minimax + Alpha-Beta Pruning + Piece-Square Tables
+      Easy:   depth 1, 30% đi ngẫu nhiên
+      Medium: depth 3
+      Hard:   depth 4
+
+▸ Backend Engine (Ruby — chạy trên server)
+  • ChessAiService: Engine Ruby thuần, cùng thuật toán với frontend
+  • Dùng cho: tính năng mở rộng sau này (async games, move validation)
+  • Hiện tại frontend tự xử lý 100% logic cờ
+
+▸ Lưu trạng thái ván đang dở
+  • gameStore.js: Lưu state trong memory (Solid.js signal)
+  • Chuyển trang rồi quay lại → Ván cờ vẫn còn nguyên
+  • Bấm "New" hoặc refresh trang → Reset ván mới
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VI. LUỒNG VẬN HÀNH ĐIỂN HÌNH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+──────────────────────────────────────────────────────────────
+A. PLAYER — MỘT PHIÊN CHƠI
+──────────────────────────────────────────────────────────────
+
+  1. Mở ứng dụng → Trang Login hiện ra
+  2. Nhập username + password → Bấm Login
+  3. Vào trang Home → Thấy stats cá nhân + 2 chế độ chơi
+  4. Chọn "VS COMPUTER" → Chọn màu Trắng, độ khó Medium
+  5. Chơi cờ → AI thinking → Lượt mình → Lặp lại
+  6. Giữa chừng muốn xem lịch sử → Bấm "MY HISTORY"
+  7. Xem xong → Bấm "VS COMPUTER" → Ván cũ vẫn còn, tiếp tục
+  8. Chơi đến Checkmate → Modal "YOU WIN!" hiện ra
+  9. Rating tăng 15 điểm, ván được lưu vào lịch sử
+  10. Bấm "PLAY AGAIN" → Ván mới bắt đầu
+  11. Chơi thêm vài ván → Bấm logout → Kết thúc phiên
+
+──────────────────────────────────────────────────────────────
+B. ADMIN — GIÁM SÁT HÀNG NGÀY
+──────────────────────────────────────────────────────────────
+
+  1. Đăng nhập bằng tài khoản admin → Vào Dashboard
+  2. Kiểm tra 4 card thống kê:
+      Bao nhiêu player? Bao nhiêu ván hôm nay? Ai active?
+  3. Xem biểu đồ weekly → Tuần này có đông hơn tuần trước?
+  4. Xem donut chart → Player thích chơi PvP hay AI?
+  5. Xem heatmap → Ngày nào đông nhất?
+  6. Xem rating distribution → Skill level phân bổ ra sao?
+  7. Chuyển sang "Manage Users":
+      - Thấy player mới đăng ký hôm qua → Kiểm tra thông tin
+      - Có player rating bất thường → Edit, điều chỉnh rating
+      - Có tài khoản spam → Delete
+  8. Chuyển sang "All Games":
+      - Lọc theo AI → Xem phần lớn chơi difficulty nào
+      - Lọc theo PVP → Xem ai chơi nhiều nhất
+  9. Logout → Kết thúc phiên quản lý
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VII. CẤU TRÚC DỮ LIỆU
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+▸ Bảng users
+  id, username, email, password_digest, role (admin/player),
+  rating, games_played, wins, losses, draws,
+  created_at, updated_at
+
+▸ Bảng games
+  id, user_id (FK → users), mode (pvp/ai),
+  difficulty (easy/medium/hard — nullable),
+  player_color (w/b — nullable), winner (w/b — nullable),
+  result (win/loss/draw), moves (text — algebraic notation),
+  total_moves, duration_seconds, created_at, updated_at
+
+▸ Bảng daily_stats
+  id, date (unique), new_users, games_played,
+  pvp_games, ai_games, avg_game_length, active_users,
+  created_at, updated_at
+
+▸ Seed data
+  1 Admin: admin / password123
+  14 Players: queen_victoria, knight_rider, bishop_blaze, ...
+  20 Games mẫu (10 PvP + 10 AI)
+  14 ngày daily_stats
+
+================================================================
